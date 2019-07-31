@@ -46,9 +46,8 @@ class Trader:
 
         }
 
-        action will be int range(1,4) -> 
-
-        elements that need to be 
+        actions will be stored as a dictionary:
+        {up, down, left, right} 
 
         '''
     gen = random.randint(0, 100)
