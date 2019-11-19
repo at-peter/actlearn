@@ -31,6 +31,7 @@ def tilecode_encoder_Decoder(p, v):
 
 
 def observation_to_state(environment, observation):
+    # is this even necessary ? I dont think so. 
     # map an observation to state
     environment_low = environment.observation_space.low
     environment_high = environment.observation_space.high
