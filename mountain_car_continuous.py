@@ -13,17 +13,29 @@ def initialize():
 if __name__ == '__main__':
 
     max_iteration = 1000
+    num_steps = 500
     environment = initialize()
-    observation = environment.reset()
+    
     agent = agent()
-    for i in range(5):
-        action = agent.act(observation)
-        print(action)
-        observation, reward, done, info = environment.step([action])
-        # TODO: should have a check if the episode is done. 
-        works = agent.learn(environment, observation, reward)
-
-
+    for n in range(max_iteration):
+        print(n)
+        for i in range(10):
+            observation = environment.reset()
+            # environment.render()
+            action = agent.act(observation)
+            print('Action:', action, i)
+            observation, reward, done, info = environment.step([action])
+            # TODO: should have a check if the episode is done. 
+            works = agent.learn(environment, observation, reward)
+            # print(done)
+            if done:
+                print('Agent actually got to the end')
+                break
+            if i == max_iteration:
+                print('agent timed out')
+                break
+    # environment.close()
+    
     # ACTION MUST BE AN ARRAY
     # action = [0.02]
     # observation, reward, done, info = environment.step(action)

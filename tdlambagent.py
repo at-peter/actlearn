@@ -55,18 +55,25 @@ class agent:
         p = observations[0]
         v = observations[1]
         current_estimate = 0
+        previous_estimate = 0
         tiles = self._tileEncode_decoder(p, v)
         previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1])
+        
+        # Get the previous estimates: 
+        previous_tiles = self._tileEncode_decoder(self.last_state[0], self.last_state[1])
+        for tile in previous_tiles:
+            previous_estimate += self.weights[tile]
+
         # update z -> this is a d dimentional vector as there is one z for each z 
         for tile in tiles:
             current_estimate += self.weights[tile]
             self.z[tile] = self._gamma * self._lambda * self.z[tile] + 1 # not sure about how this should work..
         # update delta
         # TODO: correct the equation for delta
-        delt = reward + self.gamma 
+        delt = reward + self._gamma*current_estimate - previous_estimate 
         #update weights 
         for tile in tiles: 
-             self.weights[tile] += self.stepsize*self.z[tile]
+             self.weights[tile] += self.stepsize*self.z[tile]*delt
         #update state 
         self.last_state = observations
         return True
