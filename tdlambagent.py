@@ -64,12 +64,14 @@ class agent:
         for tile in previous_tiles:
             previous_estimate += self.weights[tile]
 
-        # update z -> this is a d dimentional vector as there is one z for each z 
+         
+        # Replacing Trace
+        sf = self._gamma*self._lambda 
+        self.z = [element * sf for element in self.z]
         for tile in tiles:
             current_estimate += self.weights[tile]
-            self.z[tile] = self._gamma * self._lambda * self.z[tile] + 1 # not sure about how this should work..
+            self.z[tile] =  1 # not sure about how this should work..
         # update delta
-        # TODO: correct the equation for delta
         delt = reward + self._gamma*current_estimate - previous_estimate 
         #update weights 
         for tile in tiles: 
