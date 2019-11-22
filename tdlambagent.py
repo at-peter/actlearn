@@ -11,7 +11,7 @@ class agent:
         '''
         This is the initialization of the agent class.
         '''
-        self.maxSize = 2048
+        self.maxSize = 65536
         self.z = [0]*self.maxSize 
         self.iht = IHT(self.maxSize)
         self.weights = [0]*self.maxSize
@@ -56,7 +56,9 @@ class agent:
         v = observations[1]
         current_estimate = 0
         previous_estimate = 0
+        # to change to sarsa lambda you simply need to include the previous action in the tile values 
         tiles = self._tileEncode_decoder(p, v)
+        # tiles = self._tileEncode_decoder(p, v, a)
         previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1])
         
         # Get the previous estimates: 
@@ -66,7 +68,7 @@ class agent:
 
          
         # Replacing Trace
-        sf = self._gamma*self._lambda 
+        sf = self.stepsize
         self.z = [element * sf for element in self.z]
         for tile in tiles:
             current_estimate += self.weights[tile]
