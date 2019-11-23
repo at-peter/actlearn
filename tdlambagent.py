@@ -21,6 +21,7 @@ class agent:
         self._gamma = 0.05
         self._lambda = 0.2
         self._epsilon = 0.05 
+        self._last_action = 0 
 
         #
         
@@ -42,27 +43,28 @@ class agent:
             action = np.random.choice([-1,1])
         else:
             # query the estimate:
-            tiles = self._tileEncode_decoder(p,v) 
+            # for range 
+            tiles = self._tileEncode_decoder(p,v,self._last_action) 
             for tile in tiles:
                 estimate += self.weights[tile]
             # act on policy: 
-                action = estimate
+                action = max(self.weights)
         
         return action  
         
-    def learn(self, environment, observations, reward):
+    def learn(self, environment, observations, reward, action):
         
         p = observations[0]
         v = observations[1]
         current_estimate = 0
         previous_estimate = 0
         # to change to sarsa lambda you simply need to include the previous action in the tile values 
-        tiles = self._tileEncode_decoder(p, v)
-        # tiles = self._tileEncode_decoder(p, v, a)
-        previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1])
+        # tiles = self._tileEncode_decoder(p, v)
+        tiles = self._tileEncode_decoder(p, v, action)
+        previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1], self._last_action)
         
         # Get the previous estimates: 
-        previous_tiles = self._tileEncode_decoder(self.last_state[0], self.last_state[1])
+        # previous_tiles = self._tileEncode_decoder(self.last_state[0], self.last_state[1])
         for tile in previous_tiles:
             previous_estimate += self.weights[tile]
 
@@ -80,6 +82,7 @@ class agent:
              self.weights[tile] += self.stepsize*self.z[tile]*delt
         #update state 
         self.last_state = observations
+        self._last_action = action
         return True
 
     def act(self, observations):
@@ -90,11 +93,12 @@ class agent:
         v = observations[1]
         return self._policy(p, v) 
 
-    def _tileEncode_decoder(self, p, v):
+    def _tileEncode_decoder(self, p, v, action):
         '''
-        This method scales the statespace onto a 10x10 grid
+        This method scales the statespace onto a 10x10X10 grid
         '''
         v_scaleFactor = 10/(0.14)
         p_scaleFactor = 10/(1.8)
-        return tiles(self.iht, self.numTilings, [p*p_scaleFactor,v*v_scaleFactor])
+        action_scaleFactor = 10/2
+        return tiles(self.iht, self.numTilings, [p*p_scaleFactor,v*v_scaleFactor, action*action_scaleFactor])
     

@@ -28,7 +28,7 @@ if __name__ == '__main__':
             observation, reward, done, info = environment.step([action])
             # TODO: should have a check if the episode is done. 
             total_reward += reward
-            works = agent.learn(environment, observation, reward)
+            works = agent.learn(environment, observation, reward, action)
             # print(done)
 
             if done:
