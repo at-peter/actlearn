@@ -17,22 +17,24 @@ class agent:
         self.weights = [0]*self.maxSize
         self.numTilings = 8 
         self.stepsize = 0.1/self.numTilings
-        
         self._gamma = 0.05
         self._lambda = 0.2
         self._epsilon = 0.05 
-        self._last_action = 0 
-
+        self._last_action = 0
+        # action refactor
+        self._current_action = 0 # this gets called and updated in agent._policy()
+        self._previous_action = 0 # this gets called and updated in agent.learn()
         #
-        
         self.last_state = [0,0]
 
     def _policy(self, p, v):
         '''
-        This method perfomes the epsilon check and action selection based on the current state. 
+        This method performs the epsilon check and action selection based on the current state. 
         '''
-        action = 0 
-        estimate = 0
+        action = 0
+        action_range = np.arange(-1, 1, 0.2)
+        estimate = [-1.0]*len(action_range)
+        action_index = 0
         '''
         action is between -1 and 1
         '''
@@ -41,14 +43,21 @@ class agent:
         if chance_of_random_action <= self._epsilon:
             #take the random action 
             action = np.random.choice([-1,1])
+            self._current_action = action
         else:
             # query the estimate:
-            # for range 
-            tiles = self._tileEncode_decoder(p,v,self._last_action) 
-            for tile in tiles:
-                estimate += self.weights[tile]
+            for i in range(len(action_range)):
+                tiles = self._tileEncode_decoder(p,v,action_range[i]) 
+                for tile in tiles:
+                    estimate[i] += self.weights[tile]
+            
+            
             # act on policy: 
-                action = max(self.weights)
+            
+            action_index = np.argmax(estimate)
+            action = action_range[action_index]    
+            self._current_action = action
+        
         
         return action  
         

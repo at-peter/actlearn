@@ -12,7 +12,7 @@ def initialize():
 
 if __name__ == '__main__':
 
-    max_iteration = 10
+    max_iteration = 100
     num_steps = 1000
     environment = initialize()
     
@@ -40,39 +40,5 @@ if __name__ == '__main__':
                 print(total_reward, 'for trial', n)
                 break
     environment.close()
-    
-    # ACTION MUST BE AN ARRAY
-    # action = [0.02]
-    # observation, reward, done, info = environment.step(action)
-    
-    # total_reward = 0 
-    # for n in range(max_iteration):
-    #     environment.render()
-    #     action = environment.action_space.sample()
-    #     observation, reward, done, info = environment.step(action)
-    #     total_reward += reward
-    #     if done:
-    #         print("Done after {} timesteps".format(n+1))
-    #         break
-    
-    # print("Episode timed out")
-    # print(total_reward)
-    # environment.close()
-
-
-
-
-
-    '''
-    PSEUDOCODE:
-    initialize()
-    for n in range(max_iteration):
-        for t in range(max_steps):
-            action = agent.act()
-            observation, reward, done, info = environment.step(action)
-            agent.learn()
-
-
-    '''
 
 
