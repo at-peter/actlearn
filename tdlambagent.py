@@ -14,11 +14,11 @@ class agent:
         self.maxSize = 65536
         self.z = [0]*self.maxSize 
         self.iht = IHT(self.maxSize)
-        # self.weights = [0]*self.maxSize 
-        self.weights = np.random.uniform(-1.0,1.0,self.maxSize)
+        self.weights = [0]*self.maxSize 
+        # self.weights = np.random.uniform(-1.0,1.0,self.maxSize)
         self.numTilings = 8 
         self.stepsize = 0.1/self.numTilings
-        self._gamma = 0.05
+        self._gamma = 0.9
         self._lambda = 0.2
         self._epsilon = 0.05 
         self._last_action = 0
@@ -67,7 +67,7 @@ class agent:
         p = observations[0]
         v = observations[1]
         action_range = np.arange(-1, 1, 0.2)
-        estimate =[0]
+        estimate =[0]*len(action_range)
         # current_estimate = 0
         # previous_estimate = 0
         # # to change to sarsa lambda you simply need to include the previous action in the tile values 
@@ -113,8 +113,19 @@ class agent:
             # act on policy: 
             
         action_index = np.argmax(estimate)
+        print(action_index)
         action = action_range[action_index]    
-            
+        print('action:', action)
+        #weight update:
+        tiles = self._tileEncode_decoder(p,v,action)
+        for tile in tiles:
+            delta += self._gamma*self.weights[tile]
+            print(tile,delta)
+            #python array does not like me here 
+            self.weights[tile] = self.weights[tile]*delta*self.z[tile]*self.stepsize
+            print(self.weights[tile])
+        
+        #updates
         sf = self._gamma*self._lambda # scale factor 
         self.z = [element *sf for element in self.z] #update of z 
         self._previous_action = self._current_action

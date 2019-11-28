@@ -47,6 +47,7 @@ if __name__ == '__main__':
     action = 1
     observation, reward, done, info = environment.step([action])
     agent.learn(observation,reward)
+    print(agent.weights[0:20])
 
 
 
