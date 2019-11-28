@@ -14,7 +14,8 @@ class agent:
         self.maxSize = 65536
         self.z = [0]*self.maxSize 
         self.iht = IHT(self.maxSize)
-        self.weights = [0]*self.maxSize
+        # self.weights = [0]*self.maxSize 
+        self.weights = np.random.uniform(-1.0,1.0,self.maxSize)
         self.numTilings = 8 
         self.stepsize = 0.1/self.numTilings
         self._gamma = 0.05
@@ -61,38 +62,65 @@ class agent:
         
         return action  
         
-    def learn(self, environment, observations, reward, action):
+    def learn(self, observations, reward):
         
         p = observations[0]
         v = observations[1]
-        current_estimate = 0
-        previous_estimate = 0
-        # to change to sarsa lambda you simply need to include the previous action in the tile values 
-        # tiles = self._tileEncode_decoder(p, v)
-        tiles = self._tileEncode_decoder(p, v, action)
-        previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1], self._last_action)
+        action_range = np.arange(-1, 1, 0.2)
+        estimate =[0]
+        # current_estimate = 0
+        # previous_estimate = 0
+        # # to change to sarsa lambda you simply need to include the previous action in the tile values 
+        # # tiles = self._tileEncode_decoder(p, v)
+        # tiles = self._tileEncode_decoder(p, v, self._current_action)
+        # previous_tiles = self._tileEncode_decoder(self.last_state[0],self.last_state[1], self._previous_action)
         
-        # Get the previous estimates: 
-        # previous_tiles = self._tileEncode_decoder(self.last_state[0], self.last_state[1])
-        for tile in previous_tiles:
-            previous_estimate += self.weights[tile]
+        # # Get the previous estimates: 
+        # # previous_tiles = self._tileEncode_decoder(self.last_state[0], self.last_state[1])
+        # for tile in previous_tiles:
+        #     previous_estimate += self.weights[tile]
 
          
-        # Replacing Trace
-        sf = self.stepsize
-        self.z = [element * sf for element in self.z]
+        # # Replacing Trace
+        # sf = self.stepsize
+        # self.z = [element * sf for element in self.z]
+        # for tile in tiles:
+        #     current_estimate += self.weights[tile]
+        #     self.z[tile] =  1 # not sure about how this should work..
+        # # update delta
+        # delt = reward + self._gamma*current_estimate - previous_estimate 
+        # #update weights 
+        # for tile in tiles: 
+        #      self.weights[tile] += self.stepsize*self.z[tile]*delt
+        # #update state 
+        # self.last_state = observations
+        # self._previous_action = self._current_action
+        
+        # Section on previous action 
+        delta = reward
+        tiles = self._tileEncode_decoder(p,v, self._current_action)
         for tile in tiles:
-            current_estimate += self.weights[tile]
-            self.z[tile] =  1 # not sure about how this should work..
-        # update delta
-        delt = reward + self._gamma*current_estimate - previous_estimate 
-        #update weights 
-        for tile in tiles: 
-             self.weights[tile] += self.stepsize*self.z[tile]*delt
-        #update state 
+            delta -= self.weights[tile] # reward - estimate 
+            self.z[tile] = 1 # replacing traces
+
+        #sweep the next actions for the next best action: 
+        # next_action = self._policy(p,v) # need to select the best action
+        # Weight update 
+        for i in range(len(action_range)):
+            tiles = self._tileEncode_decoder(p,v,action_range[i]) 
+            for tile in tiles:
+                estimate[i] += self.weights[tile]
+            # act on policy: 
+            
+        action_index = np.argmax(estimate)
+        action = action_range[action_index]    
+            
+        sf = self._gamma*self._lambda # scale factor 
+        self.z = [element *sf for element in self.z] #update of z 
+        self._previous_action = self._current_action
         self.last_state = observations
-        self._last_action = action
         return True
+
 
     def act(self, observations):
         '''
